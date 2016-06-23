@@ -34,7 +34,7 @@ public class Player2 {
 		
 	}
 	
-	public Rectangle getBounds() {
+	public static Rectangle getBounds() {
 		return new Rectangle((int)x, (int)y, w, h);
 	}
 

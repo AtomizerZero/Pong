@@ -44,6 +44,8 @@ public class Main extends Canvas implements Runnable {
 	public static Rectangle recP1;
 	public static Rectangle recP2;
 	public static Rectangle recBall;
+	public static Rectangle recP1Top;
+	public static Rectangle recP1Bot;
 
 	public static void main(String[] args) {
 		Main game = new Main();
@@ -101,7 +103,9 @@ public class Main extends Canvas implements Runnable {
 
 		recP1 = new Rectangle((int) Player1.getX(), (int) Player1.getY(), (int) Player1.getW(), (int) Player1.getH());
 		recP2 = new Rectangle((int) Player2.getX(), (int) Player2.getY(), (int) Player2.getW(), (int) Player2.getH());
-		recBall = new Rectangle((int) ball.getX()+4, (int) ball.getY()+4, (int) ball.getW()-8, (int) ball.getH()-8);
+		recBall = new Rectangle((int) ball.getX()+4, (int) ball.getY()+4, (int) ball.getW(), (int) ball.getH());
+		recP1Top = new Rectangle((int) Player1.getX(), (int) Player1.getY(), (int) Player1.getW(), 8);
+		recP1Bot = new Rectangle((int) Player1.getX(), (int) (Player1.getY() + Player1.getH() - 8), (int) Player1.getW(), 8);
 
 	}
 
@@ -192,9 +196,10 @@ public class Main extends Canvas implements Runnable {
 		p2.render(g);
 		ball.render(g);
 		g.setColor(Color.ORANGE);
-		g.drawRect((int) Player1.getX(), (int) Player1.getY(), (int) Player1.getW(), (int) Player1.getH());
-		g.drawRect((int) Player2.getX(), (int) Player2.getY(), (int) Player2.getW(), (int) Player2.getH());
-		g.drawRect((int) ball.getX() + 4, (int) ball.getY() + 4, (int) ball.getW() - 8, (int) ball.getH() - 8);
+		g.drawRect((int) Player1.getX(), (int) (Player1.getY() + Player1.getH() - 8), (int) Player1.getW() -1, 8);
+//		g.drawRect((int) Player1.getX(), (int) Player1.getY(), (int) Player1.getW(), (int) Player1.getH());
+//		g.drawRect((int) Player2.getX(), (int) Player2.getY(), (int) Player2.getW(), (int) Player2.getH());
+//		g.drawRect((int) ball.getX() + 4, (int) ball.getY() + 4, (int) ball.getW() - 8, (int) ball.getH() - 8);
 
 		g.dispose();
 		bs.show();

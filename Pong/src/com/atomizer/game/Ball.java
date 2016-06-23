@@ -11,8 +11,8 @@ public class Ball {
 	private double x;
 	private double y;
 
-	private double velX = -5;
-	private double velY = -4;
+	private double velX = -8;
+	private double velY = -7;
 
 	private int w = 32;
 	private int h = 32;
@@ -30,35 +30,58 @@ public class Ball {
 	}
 
 	public void update() {
-		x = x + velX;
-		y = y + velY;
+		x += velX;
+		y += velY;
 		if (x < 0) {
-			velX = 5;
-
+			reverseDirX();
 			System.out.println("p2!");
-		} else if (x > Main.WIDTH - 32) {
-			velX = -5;
+		}
+		if (x > Main.WIDTH - 32) {
+			reverseDirX();
 			System.out.println("p1!");
 		}
 
 		if (y < 0) {
-			velY = 4;
-
-		} else if (y > Main.HEIGHT - 32 - 24) {
-			velY = -4;
+			reverseDirY();
 		}
 
-		if (this.getBounds().intersects(Player1.getX(), Player1.getY(), Player1.getW(), Player1.getH())) {
-			col = true;
-			reverseDir();
-			System.out.println("col: " + col);
-
+		if (y > Main.HEIGHT - 32 - 24) {
+			reverseDirY();
 		}
-		if (this.getBounds().intersects(Player2.getX(), Player2.getY(), Player2.getW(), Player2.getH())) {
-			col = true;
-			reverseDir();
-			System.out.println("col: " + col);
-			
+
+		if (this.getBounds().intersects(Player1.getBounds())) {
+			double p1y = Player1.getY();
+			if (y >= p1y - Player1.getH() / 3 && y <= p1y + Player1.getH() / 3) {
+				reverseDirX();
+				System.out.println("1");
+			} else if (y >= p1y - Player1.getH() / 2 && y <= p1y + Player1.getH() / 2) {
+				velY += (y > p1y ? 1 : -1);
+				reverseDirX();
+				System.out.println("2");
+			} else if (y >= p1y - Player1.getH() && y <= p1y + Player1.getH()) {
+				velY += (y > p1y ? 2 : -2);
+				reverseDirX();
+				System.out.println("3");
+			}
+
+			reverseDirYplus();
+		}
+
+		if (this.getBounds().intersects(Player2.getBounds())) {
+			double p2y = Player2.getY();
+			if (this.y >= p2y - Player2.getH() / 3 && y <= p2y + Player2.getH() / 3) {
+				reverseDirX();
+				System.out.println("1");
+			} else if (y >= p2y - Player2.getH() / 2 && y <= p2y + Player2.getH() / 2) {
+				velY += (y > p2y ? 1 : -1);
+				reverseDirX();
+				System.out.println("2");
+			} else if (y >= p2y - Player2.getH() && y <= p2y + Player2.getH()) {
+				velY += (y > p2y ? 2 : -2);
+				reverseDirX();
+				System.out.println("3");
+			}
+			reverseDirYplus();
 		}
 
 	}
@@ -67,10 +90,27 @@ public class Ball {
 		g.drawImage(ball, (int) x, (int) y, null);
 
 	}
-	
-	public void reverseDir() {
+
+	public void reverseDirX() {
+
 		velX = -velX;
+
+	}
+
+	public void reverseDirXplus() {
+
+		this.velX = +velX;
+
+	}
+
+	public void reverseDirY() {
 		velY = -velY;
+
+	}
+
+	public void reverseDirYplus() {
+		this.velY = +velY;
+
 	}
 
 	public Rectangle getBounds() {
