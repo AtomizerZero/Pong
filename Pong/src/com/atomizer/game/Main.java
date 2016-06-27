@@ -3,6 +3,7 @@ package com.atomizer.game;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -30,7 +31,7 @@ public class Main extends Canvas implements Runnable {
 	private boolean p2UpPressed = false; // key numpad 8
 	private boolean p2DownPressed = false; // key numpad 5
 
-	private boolean ballMoving = false;
+	public static boolean ballMoving = false;
 
 	private Thread thread;
 
@@ -40,12 +41,14 @@ public class Main extends Canvas implements Runnable {
 	private Player1 p1;
 	private Player2 p2;
 	private Ball ball;
+	private BallFade fBall;
 
 	public static Rectangle recP1;
 	public static Rectangle recP2;
 	public static Rectangle recBall;
-	public static Rectangle recP1Top;
-	public static Rectangle recP1Bot;
+
+	public static int player1score;
+	public static int player2score;
 
 	public static void main(String[] args) {
 		Main game = new Main();
@@ -59,7 +62,7 @@ public class Main extends Canvas implements Runnable {
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(false);
-		frame.setBounds(screenWidth / 6, screenHeight / 5, WIDTH, HEIGHT);
+		frame.setLocationRelativeTo(null);
 		frame.setTitle("Pong");
 		frame.setVisible(true);
 		frame.requestFocusInWindow();
@@ -97,16 +100,15 @@ public class Main extends Canvas implements Runnable {
 
 		addKeyListener(new KeyInput(this));
 
-		p1 = new Player1(WIDTH / 16, this.getHeight() / 2 - 96, 32, 96, this);
-		p2 = new Player2(WIDTH - Player1.getX() - 32, this.getHeight() / 2 - 96, 32, 96, this);
+		p1 = new Player1(WIDTH / 16, HEIGHT / 2 - 52, 32, 96, this);
+		p2 = new Player2(WIDTH - Player1.getX() - 32, HEIGHT / 2 - 52, 32, 96, this);
 		ball = new Ball(WIDTH / 2 - 32, HEIGHT / 2 - 32, 32, 32, this);
 
 		recP1 = new Rectangle((int) Player1.getX(), (int) Player1.getY(), (int) Player1.getW(), (int) Player1.getH());
 		recP2 = new Rectangle((int) Player2.getX(), (int) Player2.getY(), (int) Player2.getW(), (int) Player2.getH());
-		recBall = new Rectangle((int) ball.getX()+4, (int) ball.getY()+4, (int) ball.getW(), (int) ball.getH());
-		recP1Top = new Rectangle((int) Player1.getX(), (int) Player1.getY(), (int) Player1.getW(), 8);
-		recP1Bot = new Rectangle((int) Player1.getX(), (int) (Player1.getY() + Player1.getH() - 8), (int) Player1.getW(), 8);
+		recBall = new Rectangle((int) Ball.getX() + 4, (int) Ball.getY() + 4, (int) Ball.getW(), (int) Ball.getH());
 
+		fBall = new BallFade(Ball.getX() + 4, Ball.getY() + 4);
 	}
 
 	public void run() {
@@ -142,14 +144,13 @@ public class Main extends Canvas implements Runnable {
 	}
 
 	private void update() {
-
-		if (ballMoving) {
-			ball.update();
-		}
-
 		p1.update();
 		p2.update();
 
+		if (ballMoving) {
+			ball.update();
+			fBall.update();
+		}
 		if ((p1UpPressed) && (!p1DownPressed)) {
 			p1.setVelY(-10);
 		} else if ((p1DownPressed) && (!p1UpPressed)) {
@@ -191,15 +192,18 @@ public class Main extends Canvas implements Runnable {
 		Graphics g = bs.getDrawGraphics();
 
 		g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+		g.setFont(new Font("Ariel", Font.BOLD, 56));
+		g.setColor(Color.WHITE);
+		if (!ballMoving) {
+			g.drawString("PRESS SPACE TO PLAY", WIDTH / 2 - (WIDTH / 4), HEIGHT / 8);
+		}
+		g.setFont(new Font("Ariel", Font.BOLD, 36));
 
+		g.drawString("Player1: " + player1score, WIDTH / 2 - (WIDTH / 2), HEIGHT);
+		g.drawString("Player2: " + player2score, WIDTH / 2 + (WIDTH / 4 + 96), HEIGHT);
+		fBall.render(g);
 		p1.render(g);
 		p2.render(g);
-		ball.render(g);
-		g.setColor(Color.ORANGE);
-		g.drawRect((int) Player1.getX(), (int) (Player1.getY() + Player1.getH() - 8), (int) Player1.getW() -1, 8);
-//		g.drawRect((int) Player1.getX(), (int) Player1.getY(), (int) Player1.getW(), (int) Player1.getH());
-//		g.drawRect((int) Player2.getX(), (int) Player2.getY(), (int) Player2.getW(), (int) Player2.getH());
-//		g.drawRect((int) ball.getX() + 4, (int) ball.getY() + 4, (int) ball.getW() - 8, (int) ball.getH() - 8);
 
 		g.dispose();
 		bs.show();
@@ -224,10 +228,10 @@ public class Main extends Canvas implements Runnable {
 			p2DownPressed = true;
 		}
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+
 			ballMoving = true;
 
 		}
-
 	}
 
 	public void keyReleased(KeyEvent e) {

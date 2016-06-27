@@ -1,105 +1,121 @@
 package com.atomizer.game;
 
-import java.awt.Graphics;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 
 public class Ball {
 
 	public static boolean col = false;
+	public static boolean p1Col = false;
+	public static boolean p2Col = false;
 
-	private double x;
-	private double y;
+	private static double x;
+	private static double y;
 
-	private double velX = -8;
-	private double velY = -7;
+	private static double velX = -8;
+	private static double velY = -7;
 
-	private int w = 32;
-	private int h = 32;
-
-	private BufferedImage ball;
+	private static int w = 32;
+	private static int h = 32;
+	private int i = 0;
 
 	public Ball(double x, double y, int w, int h, Main game) {
-		this.x = x;
-		this.y = y;
-
-		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet());
-
-		ball = ss.grabImage(2, 1, w, h);
+		Ball.x = x;
+		Ball.y = y;
 
 	}
 
 	public void update() {
 		x += velX;
 		y += velY;
-		if (x < 0) {
-			reverseDirX();
-			System.out.println("p2!");
-		}
-		if (x > Main.WIDTH - 32) {
-			reverseDirX();
-			System.out.println("p1!");
-		}
+		{
 
-		if (y < 0) {
-			reverseDirY();
-		}
+			if (x < 0) {
+				Main.ballMoving = false;
+				Main.player2score++;
+				System.out.println("p2!");
+			}
+			if (x > Main.WIDTH - 32) {
+				Main.ballMoving = false;
+				Main.player2score++;
+				System.out.println("p1!");
+			}
 
-		if (y > Main.HEIGHT - 32 - 24) {
-			reverseDirY();
-		}
+			if (y < 0) {
+				reverseDirY();
+				velY += (y > y ? 1 : +1);
+				p1Col = false;
+				p2Col = false;
+				
+			}
 
+			if (y > Main.HEIGHT - 24) {
+				p1Col = false;
+				p2Col = false;
+				
+				reverseDirY();
+				i++;
+				if (i == 5) {
+					i = 0;
+					velY += (y > y ? 1 : -1);
+				}
+			}
+			
+		}
 		if (this.getBounds().intersects(Player1.getBounds())) {
+			p1Col = true;p2Col = false;
+			double p1x = Player1.getX();
 			double p1y = Player1.getY();
+
 			if (y >= p1y - Player1.getH() / 3 && y <= p1y + Player1.getH() / 3) {
 				reverseDirX();
-				System.out.println("1");
+				velX += (x > p1x ? 1 : -1);
 			} else if (y >= p1y - Player1.getH() / 2 && y <= p1y + Player1.getH() / 2) {
 				velY += (y > p1y ? 1 : -1);
 				reverseDirX();
-				System.out.println("2");
 			} else if (y >= p1y - Player1.getH() && y <= p1y + Player1.getH()) {
 				velY += (y > p1y ? 2 : -2);
 				reverseDirX();
-				System.out.println("3");
+				velX += (x > p1x ? 1 : -1);
 			}
-
-			reverseDirYplus();
 		}
 
 		if (this.getBounds().intersects(Player2.getBounds())) {
+			p2Col = true;p1Col = false;
+			double p2x = Player2.getX();
 			double p2y = Player2.getY();
-			if (this.y >= p2y - Player2.getH() / 3 && y <= p2y + Player2.getH() / 3) {
-				reverseDirX();
-				System.out.println("1");
+			if (Ball.y >= p2y - Player2.getH() / 3 && y <= p2y + Player2.getH() / 3) {
+				reverseDirXop();
+				velX += (x > p2x ? 1 : +1);
 			} else if (y >= p2y - Player2.getH() / 2 && y <= p2y + Player2.getH() / 2) {
-				velY += (y > p2y ? 1 : -1);
-				reverseDirX();
-				System.out.println("2");
+				velY += (y > p2y ? 1 : +1);
+				reverseDirXop();
 			} else if (y >= p2y - Player2.getH() && y <= p2y + Player2.getH()) {
-				velY += (y > p2y ? 2 : -2);
-				reverseDirX();
-				System.out.println("3");
+				velY += (y > p2y ? 2 : +2);
+				reverseDirXop();
+				velX += (x > p2x ? 1 : +1);
+
 			}
-			reverseDirYplus();
 		}
-
-	}
-
-	public void render(Graphics g) {
-		g.drawImage(ball, (int) x, (int) y, null);
 
 	}
 
 	public void reverseDirX() {
 
-		velX = -velX;
+		if (velX < 0) {
+			velX = -velX;
+		} else if (velX > 0) {
+			velX = +velX;
+		}
 
 	}
 
-	public void reverseDirXplus() {
+	public void reverseDirXop() {
 
-		this.velX = +velX;
+		if (velX > 0) {
+			velX = -velX;
+		} else if (velX < 0) {
+			velX = +velX;
+		}
 
 	}
 
@@ -108,62 +124,57 @@ public class Ball {
 
 	}
 
-	public void reverseDirYplus() {
-		this.velY = +velY;
-
-	}
-
 	public Rectangle getBounds() {
 		return new Rectangle((int) x, (int) y, w, h);
 	}
 
-	public double getX() {
+	public static double getX() {
 		return x;
 	}
 
-	public double getY() {
+	public static double getY() {
 		return y;
 	}
 
 	public void setX(double x) {
-		this.x = x;
+		Ball.x = x;
 	}
 
 	public void setY(double y) {
-		this.y = y;
+		Ball.y = y;
 	}
 
 	public void setVelX(double velX) {
-		this.velX = velX;
+		Ball.velX = velX;
 	}
 
 	public void setVelY(double velY) {
-		this.velY = velY;
+		Ball.velY = velY;
 
 	}
 
-	public double getVelX(double velX) {
+	public static double getVelX() {
 		return velX;
 	}
 
-	public double getVelY(double velY) {
+	public static double getVelY() {
 		return velY;
 	}
 
-	public int getH() {
+	public static int getH() {
 		return h;
 	}
 
 	public void setH(int h) {
-		this.h = h;
+		Ball.h = h;
 	}
 
-	public int getW() {
+	public static int getW() {
 		return w;
 	}
 
 	public void setW(int w) {
-		this.w = w;
+		Ball.w = w;
 	}
 
 }
