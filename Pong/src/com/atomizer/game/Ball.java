@@ -1,6 +1,7 @@
 package com.atomizer.game;
 
 import java.awt.Rectangle;
+import java.util.HashMap;
 
 public class Ball {
 
@@ -11,47 +12,62 @@ public class Ball {
 	private static double x;
 	private static double y;
 
-	private static double velX = -8;
-	private static double velY = -7;
+	public static double velX = -8;
+	public static double velY = -7;
 
 	private static int w = 32;
 	private static int h = 32;
 	private int i = 0;
 
+	private HashMap<String, Sound> sfx;
+
 	public Ball(double x, double y, int w, int h, Main game) {
 		Ball.x = x;
 		Ball.y = y;
 
+		sfx = new HashMap<String, Sound>(game.getSFX());
+
 	}
 
 	public void update() {
+
 		x += velX;
 		y += velY;
 		{
 
 			if (x < 0) {
+				resetBallVel();
+				sfx.get("screenDead").play();
 				Main.ballMoving = false;
 				Main.player2score++;
-				System.out.println("p2!");
+				Main.setGameStatus(4);
+
+				// System.out.println("p2!");
 			}
 			if (x > Main.WIDTH - 32) {
+				resetBallVel();
+				sfx.get("screenDead").play();
 				Main.ballMoving = false;
-				Main.player2score++;
-				System.out.println("p1!");
+				Main.player1score++;
+				Main.setGameStatus(3);
+				// System.out.println("p1!");
 			}
 
 			if (y < 0) {
+				sfx.get("screenBounce").play();
 				reverseDirY();
 				velY += (y > y ? 1 : +1);
 				p1Col = false;
 				p2Col = false;
-				
+
 			}
 
 			if (y > Main.HEIGHT - 24) {
+				sfx.get("screenBounce").play();
+
 				p1Col = false;
 				p2Col = false;
-				
+
 				reverseDirY();
 				i++;
 				if (i == 5) {
@@ -59,10 +75,12 @@ public class Ball {
 					velY += (y > y ? 1 : -1);
 				}
 			}
-			
+
 		}
 		if (this.getBounds().intersects(Player1.getBounds())) {
-			p1Col = true;p2Col = false;
+			sfx.get("playerBounce").play();
+			p1Col = true;
+			p2Col = false;
 			double p1x = Player1.getX();
 			double p1y = Player1.getY();
 
@@ -80,7 +98,9 @@ public class Ball {
 		}
 
 		if (this.getBounds().intersects(Player2.getBounds())) {
-			p2Col = true;p1Col = false;
+			sfx.get("playerBounce").play();
+			p2Col = true;
+			p1Col = false;
 			double p2x = Player2.getX();
 			double p2y = Player2.getY();
 			if (Ball.y >= p2y - Player2.getH() / 3 && y <= p2y + Player2.getH() / 3) {
@@ -92,11 +112,17 @@ public class Ball {
 			} else if (y >= p2y - Player2.getH() && y <= p2y + Player2.getH()) {
 				velY += (y > p2y ? 2 : +2);
 				reverseDirXop();
-				velX += (x > p2x ? 1 : +1);
+				velX += (x > p2x ? 1 : -1);
 
 			}
 		}
+		System.out.println("VelX: " + velX);
+		System.out.println("VelY: " + velY);
+	}
 
+	public static void resetBallVel() {
+		velX = -8;
+		velY = -7;
 	}
 
 	public void reverseDirX() {
@@ -144,11 +170,11 @@ public class Ball {
 		Ball.y = y;
 	}
 
-	public void setVelX(double velX) {
+	public static void setVelX(double velX) {
 		Ball.velX = velX;
 	}
 
-	public void setVelY(double velY) {
+	public static void setVelY(double velY) {
 		Ball.velY = velY;
 
 	}
