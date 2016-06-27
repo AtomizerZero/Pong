@@ -212,7 +212,7 @@ public class Main extends Canvas implements Runnable {
 			g.drawString("Press Space to Play", WIDTH / 2 - (WIDTH / 8), HEIGHT - 32);
 			g.drawString("Press Escape to Quit", WIDTH / 2 - (WIDTH / 8), HEIGHT);
 			g.drawString("Player1 Controls : W = up, S = down", WIDTH - WIDTH, HEIGHT - 128);
-			g.drawString("Player2 Controls : Num8 = up, Num5 = down", WIDTH - WIDTH, HEIGHT - 128+32);
+			g.drawString("Player2 Controls : Num8 = up, Num5 = down", WIDTH - WIDTH, HEIGHT - 128 + 32);
 
 			Random rand = new Random();
 			float red = rand.nextFloat();
@@ -225,7 +225,6 @@ public class Main extends Canvas implements Runnable {
 
 			g.setFont(new Font("Ariel", Font.BOLD, 196));
 			g.drawString("PONG!", WIDTH / 4, HEIGHT / 2);
-			
 
 		}
 
@@ -248,25 +247,25 @@ public class Main extends Canvas implements Runnable {
 
 		if (getGameStatus() == 3) {
 			g.setColor(Color.RED);
-			g.setFont(new Font("Ariel", Font.BOLD, 64));
-			g.drawString("Player1 Scored!", WIDTH - WIDTH +128 + 48, HEIGHT / 2);
+			g.setFont(new Font("Ariel", Font.BOLD, 128));
+			g.drawString("Player1 Scored!", WIDTH - WIDTH + 128 + 48, HEIGHT / 2);
 
 		}
 		if (getGameStatus() == 4) {
 			g.setColor(Color.GREEN);
 			g.setFont(new Font("Ariel", Font.BOLD, 128));
-			g.drawString("Player2 Scored!", WIDTH - WIDTH +128 + 48, HEIGHT / 2);
+			g.drawString("Player2 Scored!", WIDTH - WIDTH + 128 + 48, HEIGHT / 2);
 
 		}
 		if (getGameStatus() == 5) {
 			g.setColor(Color.RED);
 			g.setFont(new Font("Ariel", Font.BOLD, 128));
-			g.drawString("Player1 WINS!", WIDTH - WIDTH +128 + 48, HEIGHT / 2);
+			g.drawString("Player1 WINS!", WIDTH - WIDTH + 128 + 48, HEIGHT / 2);
 		}
 		if (getGameStatus() == 6) {
 			g.setColor(Color.GREEN);
 			g.setFont(new Font("Ariel", Font.BOLD, 128));
-			g.drawString("Player2 WINS!", WIDTH - WIDTH +128 + 48, HEIGHT / 2);
+			g.drawString("Player2 WINS!", WIDTH - WIDTH + 128 + 48, HEIGHT / 2);
 		}
 		g.dispose();
 		bs.show();
