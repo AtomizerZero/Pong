@@ -32,8 +32,14 @@ public class Main extends Canvas implements Runnable {
 
 	public static boolean running = false;
 	public static boolean ballMoving = false;
+	public static boolean debug = false;
+	public static BufferStrategy bs;
 
 	public static int gameStatus = 0;
+	public static int updates = 0;
+	public static int frames = 0;
+	public static long timer = System.currentTimeMillis();
+	public static int FPS = 0;
 
 	private boolean p1UpPressed = false; // key W
 	private boolean p1DownPressed = false; // key S
@@ -116,9 +122,7 @@ public class Main extends Canvas implements Runnable {
 		long lastTime = System.nanoTime();
 		double delta = 0.0;
 		double ns = 1000000000.0 / 60.0;
-		long timer = System.currentTimeMillis();
-		int updates = 0;
-		int frames = 0;
+
 		while (running) {
 			long now = System.nanoTime();
 			delta += (now - lastTime) / ns;
@@ -132,7 +136,7 @@ public class Main extends Canvas implements Runnable {
 			frames++;
 			if (System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
-				System.out.println(updates + " ups, " + frames + " fps");
+				FPS = updates;
 				updates = 0;
 				frames = 0;
 			}
@@ -192,7 +196,7 @@ public class Main extends Canvas implements Runnable {
 	}
 
 	private void render() {
-		BufferStrategy bs = this.getBufferStrategy();
+		bs = this.getBufferStrategy();
 
 		if (bs == null) {
 			createBufferStrategy(2);
@@ -228,11 +232,14 @@ public class Main extends Canvas implements Runnable {
 
 		}
 
-		if (getGameStatus() == 2 || getGameStatus() == 1) {
+		if (getGameStatus() == 2 || getGameStatus() == 1 || getGameStatus() == 3 || getGameStatus() == 4
+				|| getGameStatus() == 7) {
 
-			fBall.render(g);
 			p1.render(g);
 			p2.render(g);
+			Color bcolor = new Color(0,150,255);
+			g.setColor(bcolor);
+			fBall.render(g);
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Ariel", Font.BOLD, 36));
 			g.drawString("Player1: " + player1score, WIDTH / 2 - (WIDTH / 2), HEIGHT);
@@ -266,6 +273,24 @@ public class Main extends Canvas implements Runnable {
 			g.setColor(Color.GREEN);
 			g.setFont(new Font("Ariel", Font.BOLD, 128));
 			g.drawString("Player2 WINS!", WIDTH - WIDTH + 128 + 48, HEIGHT / 2);
+		}
+
+		if (debug) {
+			
+			String Build = ("1.3.290616.13.18");
+			g.setColor(Color.GREEN);
+			g.setFont(new Font("Ariel", Font.BOLD, 12));
+
+			g.drawString(FPS + " fps", 0, 12);
+			g.drawString("XVel: " + Ball.velX, 0, 24);
+			g.drawString("YVel: " + Ball.velY, 0, 36);
+			g.drawString("X: " + Ball.getX(), 0, 48);
+			g.drawString("Y: " + Ball.getY(), 0, 60);
+			g.drawString("P1Col: " + Ball.p1Col, 64, 12);
+			g.drawString("P2Col: " + Ball.p2Col, 64, 24);
+			g.drawString("Col: " + Ball.col, 64, 36);
+			g.drawString("Build: " + Build, WIDTH - 128, 12);
+
 		}
 		g.dispose();
 		bs.show();
@@ -307,6 +332,23 @@ public class Main extends Canvas implements Runnable {
 		if (e.getKeyCode() == KeyEvent.VK_NUMPAD5) {
 			p2DownPressed = true;
 		}
+		if (e.getKeyCode() == KeyEvent.VK_F3) {
+			if (!debug) {
+				debug = true;
+
+			} else if (debug) {
+				debug = false;
+			}
+		}
+		// - GameStatus
+		// - 0 = title
+		// - 1 = paused
+		// - 2 = game in play
+		// - 3 = player 1 score
+		// - 4 = player 2 score
+		// - 5 = player 1 win
+		// - 6 = player 2 win
+		// - 7 = continue after score
 
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			if (getGameStatus() == 1) {
@@ -314,13 +356,13 @@ public class Main extends Canvas implements Runnable {
 			} else if (getGameStatus() == 2) {
 				setGameStatus(1);
 			} else if (getGameStatus() == 0) {
-				setGameStatus(2);
+				setGameStatus(7);
 			} else if (getGameStatus() == 3) {
 				initStuff();
-				setGameStatus(0);
+				setGameStatus(7);
 			} else if (getGameStatus() == 4) {
 				initStuff();
-				setGameStatus(0);
+				setGameStatus(7);
 			} else if (getGameStatus() == 5) {
 				Ball.resetBallVel();
 				initStuff();
@@ -335,6 +377,10 @@ public class Main extends Canvas implements Runnable {
 				player2score = 0;
 
 				setGameStatus(0);
+			} else if (getGameStatus() == 7) {
+				Ball.resetBallVel();
+				initStuff();
+				setGameStatus(2);
 			}
 		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {

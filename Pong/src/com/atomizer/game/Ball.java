@@ -38,19 +38,23 @@ public class Ball {
 			if (x < 0) {
 				resetBallVel();
 				sfx.get("screenDead").play();
+				col = false;
+				p1Col = false;
+				p2Col = false;
 				Main.ballMoving = false;
 				Main.player2score++;
 				Main.setGameStatus(4);
 
-				// System.out.println("p2!");
 			}
 			if (x > Main.WIDTH - 32) {
 				resetBallVel();
 				sfx.get("screenDead").play();
+				col = false;
+				p1Col = false;
+				p2Col = false;
 				Main.ballMoving = false;
 				Main.player1score++;
 				Main.setGameStatus(3);
-				// System.out.println("p1!");
 			}
 
 			if (y < 0) {
@@ -59,6 +63,7 @@ public class Ball {
 				velY += (y > y ? 1 : +1);
 				p1Col = false;
 				p2Col = false;
+				col = true;
 
 			}
 
@@ -67,6 +72,7 @@ public class Ball {
 
 				p1Col = false;
 				p2Col = false;
+				col = true;
 
 				reverseDirY();
 				i++;
@@ -81,6 +87,7 @@ public class Ball {
 			sfx.get("playerBounce").play();
 			p1Col = true;
 			p2Col = false;
+			col = true;
 			double p1x = Player1.getX();
 			double p1y = Player1.getY();
 
@@ -101,6 +108,7 @@ public class Ball {
 			sfx.get("playerBounce").play();
 			p2Col = true;
 			p1Col = false;
+			col = true;
 			double p2x = Player2.getX();
 			double p2y = Player2.getY();
 			if (Ball.y >= p2y - Player2.getH() / 3 && y <= p2y + Player2.getH() / 3) {
@@ -116,8 +124,7 @@ public class Ball {
 
 			}
 		}
-		System.out.println("VelX: " + velX);
-		System.out.println("VelY: " + velY);
+
 	}
 
 	public static void resetBallVel() {

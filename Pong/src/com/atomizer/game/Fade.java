@@ -22,7 +22,7 @@ public class Fade {
 		this.r = r;
 		this.g = g;
 		this.b = b;
-		color = new Color(r,g,b,alpha);
+		color = new Color(r, g, b, alpha);
 	}
 
 	public void fade() {
