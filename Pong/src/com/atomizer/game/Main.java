@@ -31,7 +31,6 @@ public class Main extends Canvas implements Runnable {
 	public static double StartY = HEIGHT / 2 - 32;
 
 	public static boolean running = false;
-	public static boolean ballMoving = false;
 	public static boolean debug = false;
 	public static BufferStrategy bs;
 
@@ -72,13 +71,13 @@ public class Main extends Canvas implements Runnable {
 		game.setMaximumSize(new Dimension(WIDTH, HEIGHT));
 		game.setMinimumSize(new Dimension(WIDTH, HEIGHT));
 
-		JFrame frame = new JFrame("Pong");
+		JFrame frame = new JFrame("Pong!");
 		frame.add(game);
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
-		frame.setTitle("Pong");
+		frame.setTitle("Pong!");
 		frame.setVisible(true);
 		frame.requestFocusInWindow();
 
@@ -184,6 +183,7 @@ public class Main extends Canvas implements Runnable {
 		}
 
 		checkWin();
+
 	}
 
 	private void checkWin() {
@@ -217,16 +217,13 @@ public class Main extends Canvas implements Runnable {
 			g.drawString("Press Escape to Quit", WIDTH / 2 - (WIDTH / 8), HEIGHT);
 			g.drawString("Player1 Controls : W = up, S = down", WIDTH - WIDTH, HEIGHT - 128);
 			g.drawString("Player2 Controls : Num8 = up, Num5 = down", WIDTH - WIDTH, HEIGHT - 128 + 32);
-
+			
 			Random rand = new Random();
 			float red = rand.nextFloat();
 			float grn = rand.nextFloat();
 			float blu = rand.nextFloat();
-
 			Color randomColor = new Color(red, grn, blu);
-
 			g.setColor(randomColor);
-
 			g.setFont(new Font("Ariel", Font.BOLD, 196));
 			g.drawString("PONG!", WIDTH / 4, HEIGHT / 2);
 
@@ -237,7 +234,7 @@ public class Main extends Canvas implements Runnable {
 
 			p1.render(g);
 			p2.render(g);
-			Color bcolor = new Color(0,150,255);
+			Color bcolor = new Color(0, 150, 255);
 			g.setColor(bcolor);
 			fBall.render(g);
 			g.setColor(Color.WHITE);
@@ -276,7 +273,7 @@ public class Main extends Canvas implements Runnable {
 		}
 
 		if (debug) {
-			
+
 			String Build = ("1.3.290616.13.18");
 			g.setColor(Color.GREEN);
 			g.setFont(new Font("Ariel", Font.BOLD, 12));

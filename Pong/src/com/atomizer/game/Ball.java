@@ -26,11 +26,9 @@ public class Ball {
 		Ball.y = y;
 
 		sfx = new HashMap<String, Sound>(game.getSFX());
-
 	}
 
 	public void update() {
-
 		x += velX;
 		y += velY;
 		{
@@ -41,7 +39,6 @@ public class Ball {
 				col = false;
 				p1Col = false;
 				p2Col = false;
-				Main.ballMoving = false;
 				Main.player2score++;
 				Main.setGameStatus(4);
 
@@ -52,7 +49,6 @@ public class Ball {
 				col = false;
 				p1Col = false;
 				p2Col = false;
-				Main.ballMoving = false;
 				Main.player1score++;
 				Main.setGameStatus(3);
 			}
