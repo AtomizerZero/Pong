@@ -31,7 +31,7 @@ public class BallFade {
 		}
 		LinkedList<Fade> garbageballs = new LinkedList<Fade>();
 		for (Fade fb : fBall) {
-			fb.fade();
+			fb.update();
 
 			if (fb.getAlpha() <= 10) {
 				garbageballs.add(fb);
@@ -43,7 +43,7 @@ public class BallFade {
 	public void render(Graphics g) {
 		g.fillOval((int) Ball.getX() + 4, (int) Ball.getY() + 4, 24, 24);
 		for (Fade fb : fBall)
-			fb.paint(g);
+			fb.render(g);
 
 	}
 

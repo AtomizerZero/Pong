@@ -11,6 +11,7 @@ import java.awt.event.KeyEvent;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+
 import java.util.HashMap;
 import java.util.Random;
 
@@ -30,8 +31,11 @@ public class Main extends Canvas implements Runnable {
 	public static double StartX = WIDTH / 2 - 32;
 	public static double StartY = HEIGHT / 2 - 32;
 
+	public static int selectYPos = 0;
+
 	public static boolean running = false;
 	public static boolean debug = false;
+	public static boolean select = false;
 	public static BufferStrategy bs;
 
 	public static int gameStatus = 0;
@@ -40,15 +44,34 @@ public class Main extends Canvas implements Runnable {
 	public static long timer = System.currentTimeMillis();
 	public static int FPS = 0;
 
+	public static int timing = 0;
+
 	private boolean p1UpPressed = false; // key W
 	private boolean p1DownPressed = false; // key S
 	private boolean p2UpPressed = false; // key numpad 8
 	private boolean p2DownPressed = false; // key numpad 5
+	public static int soundOnOff = 1;
+	public static int player2Selected = 0;
+
+	public static String sounds;
 
 	private BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 	private BufferedImage spriteSheet = null;
+	private BufferedImage keyW;
+	private BufferedImage keyS;
+	private BufferedImage key8;
+	private BufferedImage key5;
+	private BufferedImage keyEsc;
+	private BufferedImage keySpace;
+	private int keyWidth = 32;
+	private int keyHeight = 32;
 
 	public static HashMap<String, Sound> sfx;
+
+	public static Color randomColor;
+	public static float red;
+	public static float grn;
+	public static float blu;
 
 	private Thread thread;
 	private Player1 p1;
@@ -56,9 +79,12 @@ public class Main extends Canvas implements Runnable {
 	private Ball ball;
 	private BallFade fBall;
 
+	private Item item;
+
 	public static Rectangle recP1;
 	public static Rectangle recP2;
 	public static Rectangle recBall;
+	public static Rectangle recItem;
 
 	public static int player1score;
 	public static int player2score;
@@ -66,11 +92,7 @@ public class Main extends Canvas implements Runnable {
 
 	public static void main(String[] args) {
 		Main game = new Main();
-
 		game.setPreferredSize(new Dimension(WIDTH, HEIGHT));
-		game.setMaximumSize(new Dimension(WIDTH, HEIGHT));
-		game.setMinimumSize(new Dimension(WIDTH, HEIGHT));
-
 		JFrame frame = new JFrame("Pong!");
 		frame.add(game);
 		frame.pack();
@@ -104,11 +126,20 @@ public class Main extends Canvas implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		SpriteSheet ss = new SpriteSheet(this.getSpriteSheet());
 
 		sfx = new HashMap<String, Sound>();
 		sfx.put("playerBounce", new Sound("/bounce1.wav"));
 		sfx.put("screenBounce", new Sound("/bounce2.wav"));
 		sfx.put("screenDead", new Sound("/bouncedead.wav"));
+		sfx.put("item", new Sound("/item.wav"));
+
+		keyW = ss.grabImage(2, 2, keyWidth, keyHeight);
+		keyS = ss.grabImage(2, 3, keyWidth, keyHeight);
+		key8 = ss.grabImage(3, 2, keyWidth, keyHeight);
+		key5 = ss.grabImage(3, 3, keyWidth, keyHeight);
+		keyEsc = ss.grabImage(4, 2, keyWidth, keyHeight);
+		keySpace = ss.grabImage(2, 4, 64, keyHeight);
 
 		addKeyListener(new KeyInput(this));
 		initStuff();
@@ -145,13 +176,43 @@ public class Main extends Canvas implements Runnable {
 	}
 
 	private void update() {
+
+		if (getGameStatus() == 0) {
+			if (selectYPos <= -1) {
+				selectYPos = 184;
+			}
+			if (selectYPos >= 185) {
+				selectYPos = 0;
+			}
+			if (getGameStatus() == 0 && winScore < 1) {
+				winScore = 99;
+			}
+			if (getGameStatus() == 0 && winScore > 99) {
+				winScore = 1;
+			}
+			if (selectYPos == 0) {
+
+			}
+			if (selectYPos == 44) {
+
+			}
+
+			if (selectYPos == 88) {
+
+			}
+
+		}
+
 		if (getGameStatus() == 2) {
 
 			p1.update();
+
 			p2.update();
 
 			ball.update();
 			fBall.update();
+
+			item.update();
 
 			if ((p1UpPressed) && (!p1DownPressed)) {
 				p1.setVelY(-10);
@@ -166,22 +227,44 @@ public class Main extends Canvas implements Runnable {
 			} else if (Player1.getY() + Player1.getH() > this.getHeight()) {
 				p1.setY(this.getHeight() - Player1.getH());
 			}
-
-			if ((p2UpPressed) && (!p2DownPressed)) {
-				p2.setVelY(-10);
-			} else if ((p2DownPressed) && (!p2UpPressed)) {
-				p2.setVelY(10);
-			} else if ((!p2DownPressed) && (!p2UpPressed)) {
-				p2.setVelY(0);
+			if (getPlayer2Selected() == 1) {
+				if ((p2UpPressed) && (!p2DownPressed)) {
+					p2.setVelY(-10);
+				} else if ((p2DownPressed) && (!p2UpPressed)) {
+					p2.setVelY(10);
+				} else if ((!p2DownPressed) && (!p2UpPressed)) {
+					p2.setVelY(0);
+				}
+				if (Player2.getY() - Player2.getH() / 96 < 0) {
+					p2.setY(Player2.getH() / 96);
+				} else if (Player2.getY() + Player2.getH() > this.getHeight()) {
+					p2.setY(this.getHeight() - Player2.getH());
+				}
 			}
 
-			if (Player2.getY() - Player2.getH() / 96 < 0) {
-				p2.setY(Player2.getH() / 96);
-			} else if (Player2.getY() + Player2.getH() > this.getHeight()) {
-				p2.setY(this.getHeight() - Player2.getH());
+			if (getPlayer2Selected() == 0) {
+				if (Ball.getY() < Player2.getY()) {
+                    this.p2.setVelY(Ball.getVelY() - 2.0);
+                    if (Ball.getVelY() <= -11.0) {
+                        this.p2.setVelY(-11.0);
+                    }
+                } else if (Ball.getY() > Player2.getY()) {
+                    this.p2.setVelY(Ball.getVelY() + 2.0);
+                    if (Ball.getVelY() >= 11.0) {
+                        this.p2.setVelY(11.0);
+                    }
+                }
+				if (Ball.getVelX() < -0.0) {
+					p2.setVelY(0);
+				}
+				if (Player2.getY() - Player2.getH() / 96 < 0) {
+					p2.setY(Player2.getH() / 96);
+				} else if (Player2.getY() + Player2.getH() > this.getHeight()) {
+					p2.setY(this.getHeight() - Player2.getH());
+				}
 			}
+			System.out.println(Player2.getVelY());
 		}
-
 		checkWin();
 
 	}
@@ -210,22 +293,54 @@ public class Main extends Canvas implements Runnable {
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
 		if (getGameStatus() == 0) {
-			g.setColor(Color.WHITE);
 
+			g.setColor(Color.GRAY);
+
+			g.setFont(new Font("Ariel", Font.BOLD, 24));
+			g.drawImage(keyW, WIDTH - WIDTH + 64, HEIGHT - 128, null);
+			g.drawString("Player 1 Up", WIDTH - WIDTH + 100, HEIGHT - 104);
+			g.drawImage(keyS, WIDTH - WIDTH + 64, HEIGHT - 90, null);
+			g.drawString("Player 1 Down", WIDTH - WIDTH + 100, HEIGHT - 66);
+			g.drawImage(key8, WIDTH - 256, HEIGHT - 128, null);
+			g.drawString("Player 2 Up", WIDTH - 220, HEIGHT - 104);
+			g.drawImage(key5, WIDTH - 256, HEIGHT - 90, null);
+			g.drawString("Player 2 Down", WIDTH - 220, HEIGHT - 66);
+			g.drawImage(keySpace, WIDTH / 4 + 256, HEIGHT - 128, null);
+			g.drawString("Select", WIDTH / 4 + 256 + 68, HEIGHT - 104);
+			g.drawImage(keyEsc, WIDTH / 4 + 256 + 32, HEIGHT - 90, null);
+			g.drawString("Quit", WIDTH / 4 + 256 + 68, HEIGHT - 66);
+
+			g.setColor(Color.WHITE);
 			g.setFont(new Font("Ariel", Font.BOLD, 34));
-			g.drawString("Press Space to Play", WIDTH / 2 - (WIDTH / 8), HEIGHT - 32);
-			g.drawString("Press Escape to Quit", WIDTH / 2 - (WIDTH / 8), HEIGHT);
-			g.drawString("Player1 Controls : W = up, S = down", WIDTH - WIDTH, HEIGHT - 128);
-			g.drawString("Player2 Controls : Num8 = up, Num5 = down", WIDTH - WIDTH, HEIGHT - 128 + 32);
-			
-			Random rand = new Random();
-			float red = rand.nextFloat();
-			float grn = rand.nextFloat();
-			float blu = rand.nextFloat();
-			Color randomColor = new Color(red, grn, blu);
+			g.drawString("1 Player", WIDTH / 2 - 64, WIDTH / 4);
+			g.drawString("2 Player", WIDTH / 2 - 64, WIDTH / 4 + 46);
+			g.drawString("Win < " + winScore + " >", WIDTH / 2 - 64, WIDTH / 4 + 92);
+			if (soundOnOff == 1) {
+				g.drawString("Sound on", WIDTH / 2 - 64, WIDTH / 4 + 138);
+			}
+			if (soundOnOff == 0) {
+				g.drawString("Sound off", WIDTH / 2 - 64, WIDTH / 4 + 138);
+			}
+
+			g.drawString("Exit", WIDTH / 2 - 30, WIDTH / 4 + 184);
+			g.setColor(Color.WHITE);
+			g.drawRect(WIDTH / 2 - 124, WIDTH / 4 - 34 + selectYPos, 256, 46);
+			g.setColor(Color.BLACK);
+			g.fillRect(WIDTH / 2 - 124, WIDTH / 4 - 34 + -48, 257, 47);
+			g.fillRect(WIDTH / 2 - 124, WIDTH / 4 - 34 + 232, 257, 47);
+
+			if (System.currentTimeMillis() - timer > 500) {
+
+				Random rand = new Random();
+				red = rand.nextFloat();
+				grn = rand.nextFloat();
+				blu = rand.nextFloat();
+
+			}
+			randomColor = new Color(red, grn, blu);
 			g.setColor(randomColor);
 			g.setFont(new Font("Ariel", Font.BOLD, 196));
-			g.drawString("PONG!", WIDTH / 4, HEIGHT / 2);
+			g.drawString("PONG!", WIDTH / 4, (HEIGHT / 2) / 2 + 32);
 
 		}
 
@@ -234,9 +349,11 @@ public class Main extends Canvas implements Runnable {
 
 			p1.render(g);
 			p2.render(g);
+
 			Color bcolor = new Color(0, 150, 255);
 			g.setColor(bcolor);
 			fBall.render(g);
+			item.render(g);
 			g.setColor(Color.WHITE);
 			g.setFont(new Font("Ariel", Font.BOLD, 36));
 			g.drawString("Player1: " + player1score, WIDTH / 2 - (WIDTH / 2), HEIGHT);
@@ -265,16 +382,22 @@ public class Main extends Canvas implements Runnable {
 			g.setColor(Color.RED);
 			g.setFont(new Font("Ariel", Font.BOLD, 128));
 			g.drawString("Player1 WINS!", WIDTH - WIDTH + 128 + 48, HEIGHT / 2);
+			Item.p1Shield = false;
+			Item.p2Shield = false;
+			Item.resetItemPos();
 		}
 		if (getGameStatus() == 6) {
 			g.setColor(Color.GREEN);
 			g.setFont(new Font("Ariel", Font.BOLD, 128));
 			g.drawString("Player2 WINS!", WIDTH - WIDTH + 128 + 48, HEIGHT / 2);
+			Item.p1Shield = false;
+			Item.p2Shield = false;
+			Item.resetItemPos();
 		}
 
 		if (debug) {
 
-			String Build = ("1.3.290616.13.18");
+			String Build = ("2.1");
 			g.setColor(Color.GREEN);
 			g.setFont(new Font("Ariel", Font.BOLD, 12));
 
@@ -286,8 +409,9 @@ public class Main extends Canvas implements Runnable {
 			g.drawString("P1Col: " + Ball.p1Col, 64, 12);
 			g.drawString("P2Col: " + Ball.p2Col, 64, 24);
 			g.drawString("Col: " + Ball.col, 64, 36);
-			g.drawString("Build: " + Build, WIDTH - 128, 12);
-
+			g.drawString("Sound: " + getSoundOnOff(), 64, 48);
+			g.drawString("WinScore: " + winScore, 64, 60);
+			g.drawString("Build: " + Build, WIDTH - 256, 12);
 		}
 		g.dispose();
 		bs.show();
@@ -298,10 +422,12 @@ public class Main extends Canvas implements Runnable {
 		p1 = new Player1(p1StartX, p1StartY, 32, 96, this);
 		p2 = new Player2(p2StartX, p2StartY, 32, 96, this);
 		ball = new Ball(StartX, StartY, 32, 32, this);
+		item = new Item(Item.getX(), Item.getY(), 32, 32, this);
 
 		recP1 = new Rectangle((int) Player1.getX(), (int) Player1.getY(), (int) Player1.getW(), (int) Player1.getH());
 		recP2 = new Rectangle((int) Player2.getX(), (int) Player2.getY(), (int) Player2.getW(), (int) Player2.getH());
 		recBall = new Rectangle((int) Ball.getX() + 4, (int) Ball.getY() + 4, (int) Ball.getW(), (int) Ball.getH());
+		recItem = new Rectangle((int) Item.getX(), (int) Item.getY(), (int) Item.getW(), (int) Item.getH());
 
 		fBall = new BallFade(Ball.getX() + 4, Ball.getY() + 4);
 
@@ -319,10 +445,28 @@ public class Main extends Canvas implements Runnable {
 
 		if (e.getKeyCode() == KeyEvent.VK_W) {
 			p1UpPressed = true;
+			if (getGameStatus() == 0) {
+				selectYPos = selectYPos - 46;
+			}
 		}
 		if (e.getKeyCode() == KeyEvent.VK_S) {
 			p1DownPressed = true;
+			if (getGameStatus() == 0) {
+				selectYPos = selectYPos + 46;
+			}
 		}
+
+		if (e.getKeyCode() == KeyEvent.VK_A) {
+			if (getGameStatus() == 0) {
+
+				winScore--;
+			}
+		}
+		if (e.getKeyCode() == KeyEvent.VK_D) {
+			if (getGameStatus() == 0)
+				winScore++;
+		}
+
 		if (e.getKeyCode() == KeyEvent.VK_NUMPAD8) {
 			p2UpPressed = true;
 		}
@@ -345,15 +489,31 @@ public class Main extends Canvas implements Runnable {
 		// - 4 = player 2 score
 		// - 5 = player 1 win
 		// - 6 = player 2 win
-		// - 7 = continue after score
+		// - 7 = continue after score/after starting new game
 
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			if (getGameStatus() == 1) {
+			select = true;
+			if (getGameStatus() == 0) {
+				if (selectYPos == 0) {
+					setPlayer2Selected(0);
+					setGameStatus(7);
+				} else if (selectYPos == 46) {
+					setPlayer2Selected(1);
+					setGameStatus(7);
+				} else if (select == true && selectYPos == 138) {
+					if (getSoundOnOff() == 0) {
+						setSoundOnOff(1);
+					} else if (getSoundOnOff() == 1) {
+						setSoundOnOff(0);
+					}
+					System.out.println(soundOnOff);
+				} else if (selectYPos == 184) {
+					System.exit(0);
+				}
+			} else if (getGameStatus() == 1) {
 				setGameStatus(2);
 			} else if (getGameStatus() == 2) {
 				setGameStatus(1);
-			} else if (getGameStatus() == 0) {
-				setGameStatus(7);
 			} else if (getGameStatus() == 3) {
 				initStuff();
 				setGameStatus(7);
@@ -380,7 +540,9 @@ public class Main extends Canvas implements Runnable {
 				setGameStatus(2);
 			}
 		}
-		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE)
+
+		{
 			System.exit(0);
 		}
 
@@ -401,6 +563,10 @@ public class Main extends Canvas implements Runnable {
 			p2DownPressed = false;
 
 		}
+		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			select = false;
+		}
+
 	}
 
 	public int getGameStatus() {
@@ -409,6 +575,22 @@ public class Main extends Canvas implements Runnable {
 
 	public static void setGameStatus(int gameStatus) {
 		Main.gameStatus = gameStatus;
+	}
+
+	public int getSoundOnOff() {
+		return soundOnOff;
+	}
+
+	public static void setSoundOnOff(int s) {
+		Main.soundOnOff = s;
+	}
+
+	public int getPlayer2Selected() {
+		return player2Selected;
+	}
+
+	public static void setPlayer2Selected(int p) {
+		Main.player2Selected = p;
 	}
 
 }

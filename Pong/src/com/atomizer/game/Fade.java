@@ -25,7 +25,7 @@ public class Fade {
 		color = new Color(r, g, b, alpha);
 	}
 
-	public void fade() {
+	public void update() {
 		alpha -= 23;
 		setColor();
 	}
@@ -38,7 +38,7 @@ public class Fade {
 		return alpha;
 	}
 
-	public void paint(Graphics g) {
+	public void render(Graphics g) {
 		g.setColor(color);
 		g.fillOval((int) x, (int) y, (int) area, (int) area);
 	}

@@ -9,8 +9,8 @@ public class Player2 {
 	private static double x;
 	private static double y;
 
-	private double velX = 0;
-	private double velY = 0;
+	private static double velX = 0;
+	private static double velY = 0;
 	
 	private static int w = 32;
 	private static int h = 96;
@@ -24,7 +24,7 @@ public class Player2 {
 		
 		SpriteSheet ss = new SpriteSheet(game.getSpriteSheet());
 
-		player = ss.grabImage(1, 2, w, h);
+		player = ss.grabImage(1, 4, w, h);
 
 	}
 
@@ -60,12 +60,20 @@ public class Player2 {
 	}
 
 	public void setVelX(double velX) {
-		this.velX = velX;
+		Player2.velX = velX;
+	}
+	
+	public static double getVelX() {
+		return velX;
 	}
 
 	public void setVelY(double velY) {
-		this.velY = velY;
+		Player2.velY = velY;
 
+	}
+	
+	public static double getVelY() {
+		return velY;
 	}
 
 	public static int getH() {
